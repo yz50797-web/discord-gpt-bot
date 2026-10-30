@@ -1,23 +1,24 @@
 @echo off
-chcp 65001 >nul
+rem Keep this file ASCII-only: cmd on Chinese Windows (Big5) misreads UTF-8 text.
 cd /d "%~dp0"
 
-rem 第一次執行（例如從 GitHub 下載）時沒有 .venv，自動建立並安裝套件
+rem First run (e.g. downloaded from GitHub): create .venv and install packages
 if not exist ".venv\Scripts\python.exe" (
     where python >nul 2>nul || (
-        echo 找不到 Python，請先到 https://www.python.org/downloads/ 安裝，安裝時勾選 "Add python.exe to PATH"。
+        echo Python not found. Install it from https://www.python.org/downloads/
+        echo and check "Add python.exe to PATH" during installation.
         pause
         exit /b 1
     )
-    echo 第一次執行，正在建立 Python 環境並安裝套件...
+    echo First run: creating Python environment and installing packages...
     python -m venv .venv || (pause & exit /b 1)
     ".venv\Scripts\python.exe" -m pip install -q -r requirements.txt || (pause & exit /b 1)
 )
 
-rem 沒有 .env 就從範本複製一份，提醒填金鑰
+rem No .env yet: copy the template and ask for the keys
 if not exist ".env" (
     copy ".env.example" ".env" >nul
-    echo 已建立 .env，請打開它填入 DISCORD_TOKEN 和 OPENAI_API_KEY 後再執行一次。
+    echo Created .env - open it, fill in DISCORD_TOKEN and OPENAI_API_KEY, then run start.bat again.
     pause
     exit /b 1
 )
